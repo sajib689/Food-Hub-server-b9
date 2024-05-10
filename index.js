@@ -41,7 +41,12 @@ async function run() {
       const result = await foodCollection.insertOne(query)
       res.send(result);
     })
-
+    // get food by email
+    app.get('/foods', async (req, res) => {
+      const email = req.query.email
+      const result = await foodCollection.findOne({email: email}).toArray()
+      res.send(result)
+    })
  } finally {
  
   }
