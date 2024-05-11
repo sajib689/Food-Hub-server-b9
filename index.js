@@ -61,6 +61,25 @@ async function run() {
       const result = await foodCollection.deleteOne(query)
       res.send(result)
     })
+    // update food data 
+    app.put('/food/:id', async (req, res) => {
+      const id = req.params.id
+      const query = {_id: new ObjectId(id)}
+      const update = req.body
+      const options = {upsert: true}
+      const updateFood = {
+        $set: {
+          foodImage: update.foodImage,
+        foodName: update.foodName,
+        quantity: update.quantity,
+        pickupLocation: update.pickupLocation,
+        expiredDateTime: update.expiredDateTime,
+        additionalNotes: update.additionalNotes,
+        }
+      }
+      const result = await foodCollection.updateOne(query,updateFood,options)
+      res.send(result)
+    })
  } finally {
  
   }
