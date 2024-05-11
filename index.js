@@ -62,7 +62,7 @@ async function run() {
       res.send(result)
     })
     // update food data 
-    app.put('/food/:id', async (req, res) => {
+    app.put('/foods/:id', async (req, res) => {
       const id = req.params.id
       const query = {_id: new ObjectId(id)}
       const update = req.body
