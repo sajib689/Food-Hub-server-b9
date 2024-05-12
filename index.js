@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config()
+const jwt = require('jsonwebtoken');
 
 var cookieParser = require('cookie-parser')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -26,11 +27,37 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-
+  const verifyToken = (req, res, next) => {
+    const token = req.cookies?.body
+    if(!token){
+     return res.status(401).send({message: 'unauthorized access'})
+    }
+    jwt.verify(token,process.env.Access_Token, (err, decoded) =>{
+      if(err) {
+       return res.status(401).send({message: 'unauthorized access'})
+      }
+      req.user = decoded 
+      next()
+    })
+  }
 async function run() {
   try {
     const foodCollection = await client.db('foodDb').collection('foodCollection')
     const requestCollection = await client.db('foodDb').collection('foodRequest')
+    // jwt post
+    app.post('/jwt', async (req, res) => {
+      const user = req.body 
+      const token = jwt.sign(user, process.env.Access_Token, {
+        expiresIn: '1h'
+      })
+      res
+      .cookie('token', token,{
+        httpOnly: true,
+        secure: true,
+      })
+      .send({success: true})
+    })
+    
     // get all food items
     app.get('/foods', async (req, res) => {
       const donatorEmail = req.query?.donatorEmail
