@@ -30,16 +30,16 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-  const verifyToken = (req, res, next) => {
-    const token = req?.cookies?.body
+  const verifyToken = async (req, res, next) => {
+    const token = req?.cookies?.token
     if(!token){
      return res.status(401).send({message: 'unauthorized access'})
     }
-    jwt.verify(token,process.env.Access_Token, (err, decoded) =>{
+    jwt.verify(token,process.env.Access_Token, (err, decode) =>{
       if(err) {
        return res.status(401).send({message: 'unauthorized access'})
       }
-      req.user = decoded 
+      req.user = decode
       next()
     })
   }
@@ -65,22 +65,22 @@ async function run() {
     app.post('/logout', async (req, res) => {
       const user = req.body
       res.
-      clearCookie(user, {maxAge: 0})
+      clearCookie('token', {maxAge: 0})
       .send({success: true})
     })
     // get all food items
-    app.get('/foods',verifyToken, async (req, res) => {
-      const donatorEmail = req.query?.donatorEmail
+    app.get('/foods', async (req, res) => {
+      const donatorEmail = req?.query?.donatorEmail
       if(donatorEmail) {
         const result = await foodCollection.find({donatorEmail: donatorEmail}).toArray()
         res.send(result)
-      } else{
+      } else {
         
-        const result = await foodCollection.find().toArray();
-        res.send(result);
+      const result = await foodCollection.find().toArray();
+      res.send(result);
       }
-    
     })
+  
     // post foods
     app.post('/foods', async (req, res) => {
       const query = req.body
@@ -131,6 +131,9 @@ async function run() {
     // get email wise data
     app.get('/request',verifyToken, async (req, res) => {
       const requestUserEmail = req.query?.requestUserEmail
+      // if(req?.query?.requestUserEmail !== req?.user?.email){
+      //   return res.status(403).send({message: 'forbidden access'})
+      // }
       const result = await requestCollection.find({requestUserEmail: requestUserEmail}).toArray()
       res.send(result)
     })
