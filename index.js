@@ -33,8 +33,16 @@ async function run() {
     const requestCollection = await client.db('foodDb').collection('foodRequest')
     // get all food items
     app.get('/foods', async (req, res) => {
+      const donatorEmail = req.query?.donatorEmail
+      if(donatorEmail) {
+        const result = await foodCollection.find({donatorEmail: donatorEmail}).toArray()
+        res.send(result)
+      } else{
+        
         const result = await foodCollection.find().toArray();
         res.send(result);
+      }
+    
     })
     // post foods
     app.post('/foods', async (req, res) => {
@@ -42,12 +50,7 @@ async function run() {
       const result = await foodCollection.insertOne(query)
       res.send(result);
     })
-    // get food by email
-    app.get('/foods', async (req, res) => {
-      const email = req.query.email
-      const result = await foodCollection.findOne({email: email}).toArray()
-      res.send(result)
-    })
+   
     // find food id wise from database
     app.get('/foods/:id', async (req, res) => {
       const id = req.params.id
