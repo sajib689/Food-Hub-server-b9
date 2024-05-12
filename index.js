@@ -69,7 +69,7 @@ async function run() {
       .send({success: true})
     })
     // get all food items
-    app.get('/foods', async (req, res) => {
+    app.get('/foods',verifyToken, async (req, res) => {
       const donatorEmail = req?.query?.donatorEmail
       if(donatorEmail) {
         const result = await foodCollection.find({donatorEmail: donatorEmail}).toArray()
