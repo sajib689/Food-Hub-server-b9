@@ -31,7 +31,7 @@ const client = new MongoClient(uri, {
   }
 });
   const verifyToken = (req, res, next) => {
-    const token = req.cookies?.body
+    const token = req?.cookies?.body
     if(!token){
      return res.status(401).send({message: 'unauthorized access'})
     }
@@ -69,7 +69,7 @@ async function run() {
       .send({success: true})
     })
     // get all food items
-    app.get('/foods', async (req, res) => {
+    app.get('/foods',verifyToken, async (req, res) => {
       const donatorEmail = req.query?.donatorEmail
       if(donatorEmail) {
         const result = await foodCollection.find({donatorEmail: donatorEmail}).toArray()
@@ -129,7 +129,7 @@ async function run() {
       res.send(result)
     })
     // get email wise data
-    app.get('/request', async (req, res) => {
+    app.get('/request',verifyToken, async (req, res) => {
       const requestUserEmail = req.query?.requestUserEmail
       const result = await requestCollection.find({requestUserEmail: requestUserEmail}).toArray()
       res.send(result)
