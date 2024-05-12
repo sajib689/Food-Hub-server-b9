@@ -91,6 +91,26 @@ async function run() {
       const result = await requestCollection.insertOne(query)
       res.send(result)
     })
+    // get email wise data
+    app.get('/request', async (req, res) => {
+      const requestUserEmail = req.query?.requestUserEmail
+      const result = await requestCollection.find({requestUserEmail: requestUserEmail}).toArray()
+      res.send(result)
+    })
+    // update status
+    app.patch('/foods/:id', async (req,res) => {
+      const id = req.params.id
+      const filter = {_id: new ObjectId(id)}
+      const options = {upsert: true}
+      const update = req.body
+      const updateStatus = {
+        $set: {
+          status: update.status,
+        }
+      }
+      const result = await foodCollection.updateOne(filter, updateStatus,options)
+      res.send(result)
+    })
  } finally {
  
   }
