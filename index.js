@@ -10,7 +10,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:5173/'],
+  origin: ['http://localhost:5173'],
   credentials: true
 }));
 app.use(cookieParser())
@@ -49,7 +49,7 @@ async function run() {
     const requestCollection = await client.db('foodDb').collection('foodRequest')
     // jwt post
     app.post('/jwt', async (req, res) => {
-      const user = req.body 
+      const user = req.body
       const token = jwt.sign(user, process.env.Access_Token, {
         expiresIn: '1h'
       })
@@ -57,10 +57,17 @@ async function run() {
       .cookie('token', token,{
         httpOnly: true,
         secure: true,
+        sameSite: 'none'
       })
       .send({success: true})
     })
-    
+    // logout and clear the cookie
+    app.post('/logout', async (req, res) => {
+      const user = req.body
+      res.
+      clearCookie(user, {maxAge: 0})
+      .send({success: true})
+    })
     // get all food items
     app.get('/foods', async (req, res) => {
       const donatorEmail = req.query?.donatorEmail
