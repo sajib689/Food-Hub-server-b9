@@ -131,9 +131,9 @@ async function run() {
     // get email wise data
     app.get('/request',verifyToken, async (req, res) => {
       const requestUserEmail = req.query?.requestUserEmail
-      // if(req?.query?.requestUserEmail !== req?.user?.email){
-      //   return res.status(403).send({message: 'forbidden access'})
-      // }
+      if(req?.query?.requestUserEmail !== req?.user?.email){
+        return res.status(403).send({message: 'forbidden access'})
+      }
       const result = await requestCollection.find({requestUserEmail: requestUserEmail}).toArray()
       res.send(result)
     })
