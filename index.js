@@ -96,7 +96,6 @@ async function run() {
   }
 });
 
-    // post foods
    
    
     // find food id wise from database
@@ -163,7 +162,11 @@ async function run() {
       const result = await foodCollection.updateOne(filter, updateStatus,options)
       res.send(result)
     })
-    
+    app.get('/request', async (req, res) => {
+      const donatorEmail = req?.query?.donatorEmail
+      const result = await requestCollection.find({donatorEmail: donatorEmail}).toArray()
+      res.send(result)
+    })
  } finally {
  
   }
