@@ -68,25 +68,36 @@ async function run() {
       clearCookie('token', {maxAge: 0})
       .send({success: true})
     })
-    // get all food items
-    app.get('/foods',verifyToken, async (req, res) => {
-      const donatorEmail = req?.query?.donatorEmail
-      if(donatorEmail) {
-        const result = await foodCollection.find({donatorEmail: donatorEmail}).toArray()
-        res.send(result)
-      } else {
-        
-      const result = await foodCollection.find().toArray();
-      res.send(result);
-      }
-    })
-  
-    // post foods
+   
     app.post('/foods', async (req, res) => {
       const query = req.body
       const result = await foodCollection.insertOne(query)
       res.send(result);
     })
+     // Route to get all food items and search for food
+  app.get('/foods', async (req, res) => {
+  try {
+    const donatorEmail = req.query.donatorEmail;
+    const foodName = req.query.foodName;
+
+    let result;
+    if (donatorEmail) {
+      result = await foodCollection.find({ donatorEmail: donatorEmail }).toArray();
+    } else if (foodName) {
+      result = await foodCollection.find({ foodName: { $regex: foodName, $options: 'i' } }).toArray();
+    } else {
+      result = await foodCollection.find().toArray();
+    }
+
+    res.send(result);
+  } catch (error) {
+    console.error('Error fetching food items:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+    // post foods
+   
    
     // find food id wise from database
     app.get('/foods/:id', async (req, res) => {
@@ -95,6 +106,7 @@ async function run() {
       const result = await foodCollection.findOne(query)
       res.send(result)
     })
+    
     // delete data from database id wise
     app.delete('/foods/:id', async (req, res) => {
       const id = req.params.id
@@ -151,6 +163,7 @@ async function run() {
       const result = await foodCollection.updateOne(filter, updateStatus,options)
       res.send(result)
     })
+    
  } finally {
  
   }
