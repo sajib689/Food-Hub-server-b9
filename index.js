@@ -47,6 +47,7 @@ async function run() {
   try {
     const foodCollection = await client.db('foodDb').collection('foodCollection')
     const requestCollection = await client.db('foodDb').collection('foodRequest')
+   const contactCollection = await client.db('foodDb').collection('contact')
     // jwt post
     app.post('/jwt', async (req, res) => {
       const user = req.body
@@ -142,11 +143,20 @@ async function run() {
     // get email wise data
     app.get('/request',verifyToken, async (req, res) => {
       const requestUserEmail = req.query?.requestUserEmail
-      if(req?.query?.requestUserEmail !== req?.user?.email){
-        return res.status(403).send({message: 'forbidden access'})
-      }
-      const result = await requestCollection.find({requestUserEmail: requestUserEmail}).toArray()
+      const donatorEmail = req?.query?.donatorEmail
+      if(requestUserEmail) {
+        if(req?.query?.requestUserEmail !== req?.user?.email){
+          return res.status(403).send({message: 'forbidden access'})
+        }
+        const result = await requestCollection.find({requestUserEmail: requestUserEmail}).toArray()
+        res.send(result)
+      } else if(donatorEmail){
+        if(req?.query?.donatorEmail !== req?.user?.email){
+          return res.status(403).send({message: 'forbidden access'})
+        }
+      const result = await requestCollection.find({donatorEmail: donatorEmail}).toArray()
       res.send(result)
+      }
     })
     // update status
     app.patch('/foods/:id', async (req,res) => {
@@ -162,9 +172,14 @@ async function run() {
       const result = await foodCollection.updateOne(filter, updateStatus,options)
       res.send(result)
     })
-    app.get('/request', async (req, res) => {
-      const donatorEmail = req?.query?.donatorEmail
-      const result = await requestCollection.find({donatorEmail: donatorEmail}).toArray()
+    // app.get('/request', async (req, res) => {
+    //   const donatorEmail = req?.query?.donatorEmail
+    //   const result = await requestCollection.find({donatorEmail: donatorEmail}).toArray()
+    //   res.send(result)
+    // })
+    app.post('/contact', async(req, res) => {
+      const query = req.body
+      const result = await contactCollection.insertOne(query)
       res.send(result)
     })
  } finally {
